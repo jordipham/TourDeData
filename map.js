@@ -84,35 +84,7 @@ map.on("load", async () => {
         return { cx: x, cy: y }; // Return as object for use in SVG attributes
       }
 
-      // Append circles to the SVG for each station
-      const circles = svg
-        .selectAll("circle")
-        .data(stations)
-        .enter()
-        .append("circle")
-        .attr("r", 5) // Radius of the circle
-        .attr("fill", "steelblue") // Circle fill color
-        .attr("stroke", "white") // Circle border color
-        .attr("stroke-width", 1.1) // Circle border thickness
-        .attr("opacity", 1.0); // Circle opacity
-
-      // Function to update circle positions when the map moves/zooms
-      function updatePositions() {
-        circles
-          .attr("cx", (d) => getCoords(d).cx) // Set the x-position using projected coordinates
-          .attr("cy", (d) => getCoords(d).cy); // Set the y-position using projected coordinates
-      }
-
-      // Initial position update when map loads
-      updatePositions();
-
-      // Reposition markers on map interactions
-      map.on("move", updatePositions); // Update during map movement
-      map.on("zoom", updatePositions); // Update during zooming
-      map.on("resize", updatePositions); // Update on window resize
-      map.on("moveend", updatePositions); // Final adjustment after movement ends
-
-      // parsing csv data for traffic flow
+      // parsing csv data for traffic flow calculation
       let trips;
       try {
         const trafficUrl =
@@ -146,6 +118,40 @@ map.on("load", async () => {
         console.error("Error loading traffic data:", error);
         trips = []; // Initialize trips to an empty array in case of error
       }
+
+      // size markers by traffic
+      const radiusScale = d3
+        .scaleSqrt()
+        .domain([0, d3.max(stations, (d) => d.totalTraffic)])
+        .range([0, 25]);
+
+      // Append circles to the SVG for each station
+      const circles = svg
+        .selectAll("circle")
+        .data(stations)
+        .enter()
+        .append("circle")
+        .attr("r", (d) => radiusScale(d.totalTraffic)) // Radius of the circle
+        .attr("fill", "steelblue") // Circle fill color
+        .attr("stroke", "white") // Circle border color
+        .attr("stroke-width", 1.1) // Circle border thickness
+        .attr("opacity", 1.0); // Circle opacity
+
+      // Function to update circle positions when the map moves/zooms
+      function updatePositions() {
+        circles
+          .attr("cx", (d) => getCoords(d).cx) // Set the x-position using projected coordinates
+          .attr("cy", (d) => getCoords(d).cy); // Set the y-position using projected coordinates
+      }
+
+      // Initial position update when map loads
+      updatePositions();
+
+      // Reposition markers on map interactions
+      map.on("move", updatePositions); // Update during map movement
+      map.on("zoom", updatePositions); // Update during zooming
+      map.on("resize", updatePositions); // Update on window resize
+      map.on("moveend", updatePositions); // Final adjustment after movement ends
     } else {
       console.error("Data structure not as expected:", jsonData);
     }
