@@ -51,19 +51,22 @@ header {
   align-items: baseline;
   justify-content: space-between;
   width: 100%;
-  padding-bottom: 2ch;
 }
 
 label {
   margin-left: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
+  /* gap: 0.25em; */
 }
 
 #time-output,
 #any-time {
   display: block;
+}
+
+#time-slider {
+    width: 300px;
 }
 
 time {
