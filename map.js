@@ -33,9 +33,9 @@ map.on("load", async () => {
     type: "line",
     source: "boston_route",
     paint: {
-      "line-color": "#4169e1", // control color of lines on the map
-      "line-width": 4, // control line width
-      "line-opacity": 0.5, // control transparency
+      "line-color": "#32D400", // control color of lines on the map
+      "line-width": 3, // control line width
+      "line-opacity": 0.4, // control transparency
     },
   });
 
@@ -51,9 +51,9 @@ map.on("load", async () => {
     type: "line",
     source: "cambridge_route",
     paint: {
-      "line-color": "#BB0000", // control color of lines on the map
-      "line-width": 4, // control line width
-      "line-opacity": 0.5, // control transparency
+      "line-color": "#32D400", // control color of lines on the map
+      "line-width": 3, // control line width
+      "line-opacity": 0.4, // control transparency
     },
   });
 
@@ -69,8 +69,50 @@ map.on("load", async () => {
     console.log("Loaded JSON Data:", jsonData); // Log to verify structure
 
     if (jsonData && jsonData.data && jsonData.data.stations) {
+      // grabbing stations
       let stations = jsonData.data.stations;
       console.log("Stations Array:", stations);
+
+      // create SVG container and load in station markers
+      const svg = d3
+        .select("#map")
+        .append("svg");
+
+      console.log("SVG overlay created.");
+
+      function getCoords(station) {
+        const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+        const { x, y } = map.project(point); // Project to pixel coordinates
+        return { cx: x, cy: y }; // Return as object for use in SVG attributes
+      }
+
+      // Append circles to the SVG for each station
+      const circles = svg
+        .selectAll("circle")
+        .data(stations)
+        .enter()
+        .append("circle")
+        .attr("r", 5) // Radius of the circle
+        .attr("fill", "steelblue") // Circle fill color
+        .attr("stroke", "white") // Circle border color
+        .attr("stroke-width", 1.1) // Circle border thickness
+        .attr("opacity", 1.0); // Circle opacity
+
+      // Function to update circle positions when the map moves/zooms
+      function updatePositions() {
+        circles
+          .attr("cx", (d) => getCoords(d).cx) // Set the x-position using projected coordinates
+          .attr("cy", (d) => getCoords(d).cy); // Set the y-position using projected coordinates
+      }
+
+      // Initial position update when map loads
+      updatePositions();
+
+      // Reposition markers on map interactions
+      map.on("move", updatePositions); // Update during map movement
+      map.on("zoom", updatePositions); // Update during zooming
+      map.on("resize", updatePositions); // Update on window resize
+      map.on("moveend", updatePositions); // Final adjustment after movement ends
     } else {
       console.error("Data structure not as expected:", jsonData);
     }
