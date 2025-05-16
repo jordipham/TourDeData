@@ -74,9 +74,7 @@ map.on("load", async () => {
       console.log("Stations Array:", stations);
 
       // create SVG container and load in station markers
-      const svg = d3
-        .select("#map")
-        .append("svg");
+      const svg = d3.select("#map").append("svg");
 
       console.log("SVG overlay created.");
 
@@ -113,6 +111,41 @@ map.on("load", async () => {
       map.on("zoom", updatePositions); // Update during zooming
       map.on("resize", updatePositions); // Update on window resize
       map.on("moveend", updatePositions); // Final adjustment after movement ends
+
+      // parsing csv data for traffic flow
+      let trips;
+      try {
+        const trafficUrl =
+          "https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv";
+
+        // store and log for verification
+        trips = await d3.csv(trafficUrl);
+        console.log("Bluebikes traffic data fetched successfully:", trips);
+        console.log("Number of trips loaded:", trips.length);
+
+        // calculate the traffic at each station
+        const departures = d3.rollup(
+          trips,
+          (v) => v.length,
+          (d) => d.start_station_id
+        );
+        const arrivals = d3.rollup(
+          trips,
+          (v) => v.length,
+          (d) => d.end_station_id
+        );
+        stations = stations.map((station) => {
+          let id = station.short_name;
+          station.arrivals = arrivals.get(id) ?? 0;
+          station.departures = departures.get(id) ?? 0;
+          station.totalTraffic = station.arrivals + station.departures;
+          return station;
+        });
+        console.log("Stations with traffic data:", stations);
+      } catch (error) {
+        console.error("Error loading traffic data:", error);
+        trips = []; // Initialize trips to an empty array in case of error
+      }
     } else {
       console.error("Data structure not as expected:", jsonData);
     }
