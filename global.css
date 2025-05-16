@@ -16,7 +16,7 @@ body {
   height: 100%;
   width: 100%;
   display: flex;
-  justify-content: center; /* Center horizontally */
+  justify-content: center;
   align-items: center; /* Center vertically */
 }
 
@@ -43,4 +43,34 @@ svg circle {
 
 circle {
   pointer-events: auto;
+}
+
+header {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 2ch;
+}
+
+label {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+#time-output,
+#any-time {
+  display: block;
+}
+
+time {
+  font-weight: bold;
+}
+
+#any-time {
+  color: #777;
+  font-style: italic;
 }
