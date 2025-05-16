@@ -9,40 +9,13 @@ body {
   padding: 1em;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 5;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-}
-
-#map {
-  width: 100%; /* Adjust width to your desired size */
-  height: 100%; /* Adjust height to your desired size */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for effect */
-  border-radius: 8px; /* Optional: rounded corners */
-}
-
-#map svg {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-svg circle {
-  fill: steelblue;
-  fill-opacity: 0.6;
-  stroke: white;
-}
-
-circle {
-  pointer-events: auto;
+em#any-time-label {
+  display: inline-block;
+  width: 5ch;
+  text-align: right;
+  color: gray;
+  font-style: italic;
+  font-size: 0.8em;
 }
 
 header {
@@ -57,23 +30,20 @@ label {
   margin-left: auto;
   display: flex;
   flex-direction: column;
-  /* gap: 0.25em; */
 }
 
-#time-output,
-#any-time {
-  display: block;
+time,
+em {
+  display: inline;
+  margin-left: 0.5em;
 }
 
 #time-slider {
-    width: 300px;
+  width: 500px; /* or try 100%, or 20em, or any value you like */
 }
 
-time {
-  font-weight: bold;
-}
-
-#any-time {
-  color: #777;
-  font-style: italic;
+#selected-time {
+  display: inline-block;
+  width: 4.5em; /* enough for '11:59 PM' */
+  text-align: right;
 }

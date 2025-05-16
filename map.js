@@ -90,9 +90,9 @@ map.on("load", async () => {
     type: "line",
     source: "boston_route",
     paint: {
-      "line-color": "#32D400", // control color of lines on the map
-      "line-width": 3, // control line width
-      "line-opacity": 0.4, // control transparency
+      "line-color": "#06402B", // control color of lines on the map
+      "line-width": 2.5, // control line width
+      "line-opacity": 0.6, // control transparency
     },
   });
 
@@ -108,9 +108,9 @@ map.on("load", async () => {
     type: "line",
     source: "cambridge_route",
     paint: {
-      "line-color": "#32D400", // control color of lines on the map
-      "line-width": 3, // control line width
-      "line-opacity": 0.4, // control transparency
+      "line-color": "#06402B", // control color of lines on the map
+      "line-width": 2.5, // control line width
+      "line-opacity": 0.6, // control transparency
     },
   });
 
@@ -184,6 +184,9 @@ map.on("load", async () => {
         trips = []; // Initialize trips to an empty array in case of error
       }
 
+      // **1. Create the quantize scale**
+      let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
+
       // size markers by traffic
       const radiusScale = d3
         .scaleSqrt()
@@ -197,7 +200,7 @@ map.on("load", async () => {
         .enter()
         .append("circle")
         .attr("r", (d) => radiusScale(d.totalTraffic)) // Radius of the circle
-        .attr("fill", "steelblue") // Circle fill color
+        .attr("fill", "steelblue") // Circle fill color - REMOVED: Now handled by CSS
         .attr("stroke", "white") // Circle border color
         .attr("stroke-width", 1.1) // Circle border thickness
         .attr("opacity", 1.0) // Circle opacity
@@ -208,7 +211,10 @@ map.on("load", async () => {
             .text(
               `${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`
             );
-        });
+        })
+        .style("--departure-ratio", (d) =>
+          stationFlow(d.departures / d.totalTraffic)
+        );
 
       // Function to update circle positions when the map moves/zooms
       function updatePositions() {
@@ -248,7 +254,12 @@ map.on("load", async () => {
         circles
           .data(filteredStations, (d) => d.short_name) // Ensure D3 tracks elements correctly
           .join("circle") // Ensure the data is bound correctly
-          .attr("r", (d) => radiusScale(d.totalTraffic)); // Update circle sizes
+          .attr("r", (d) => radiusScale(d.totalTraffic)) // Update circle sizes
+
+          // **3. Update --departure-ratio in updateScatterPlot**
+          .style("--departure-ratio", (d) =>
+            stationFlow(d.departures / d.totalTraffic)
+          );
       }
 
       // Function to update the UI when the slider moves
