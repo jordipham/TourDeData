@@ -20,6 +20,15 @@ const map = new mapboxgl.Map({
   maxZoom: 18, // Maximum allowed zoom
 });
 
+// Global variable to store the time filter
+let timeFilter = -1; // Initialize to -1 for "any time"
+
+// Global helper function to format time
+function formatTime(minutes) {
+  const date = new Date(0, 0, 0, 0, minutes); // Set hours & minutes
+  return date.toLocaleString("en-US", { timeStyle: "short" }); // Format as HH:MM AM/PM
+}
+
 map.on("load", async () => {
   // Add the data source
   map.addSource("boston_route", {
@@ -160,6 +169,31 @@ map.on("load", async () => {
       map.on("zoom", updatePositions); // Update during zooming
       map.on("resize", updatePositions); // Update on window resize
       map.on("moveend", updatePositions); // Final adjustment after movement ends
+
+      // Select the slider and display elements
+      const timeSlider = document.getElementById("time-slider");
+      const selectedTime = document.getElementById("selected-time");
+      const anyTimeLabel = document.getElementById("any-time");
+
+      // Function to update the UI when the slider moves
+      function updateTimeDisplay() {
+        timeFilter = Number(timeSlider.value); // Get slider value
+
+        if (timeFilter === -1) {
+          selectedTime.textContent = ""; // Clear time display
+          anyTimeLabel.style.display = "block"; // Show "(any time)"
+        } else {
+          selectedTime.textContent = formatTime(timeFilter); // Display formatted time
+          anyTimeLabel.style.display = "none"; // Hide "(any time)"
+        }
+
+        // Trigger filtering logic which will be implemented in the next step
+        // (For now, you can leave this empty)
+      }
+
+      // Bind the slider's input event to our function
+      timeSlider.addEventListener("input", updateTimeDisplay);
+      updateTimeDisplay(); // Initial update
     } else {
       console.error("Data structure not as expected:", jsonData);
     }
